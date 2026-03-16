@@ -693,7 +693,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 // locations.md aus dem gleichen Repo laden
-fetch('Götterbaum.md')
+fetch('locations.md')
   .then(r => r.text())
   .then(md => renderMarkers(map, parseLocations(md)))
   .catch(() => {
