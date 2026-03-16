@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Götterbaum — Der stille Eindringling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,wght@0,300;0,600;1,300;1,600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bark: #2d1f0f;
+    --moss: #4a5e2f;
+    --leaf: #6b8c3a;
+    --pale: #f0ebe0;
+    --amber: #c97b2a;
+    --red: #a63222;
+    --cream: #faf6ed;
+    --shadow: rgba(45,31,15,0.15);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--cream);
+    color: var(--bark);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.2rem 3rem;
+    background: rgba(250,246,237,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(45,31,15,0.1);
+  }
+  .nav-logo {
+    font-family: 'Fraunces', serif;
+    font-size: 1rem; font-style: italic; font-weight: 300;
+    letter-spacing: 0.05em; color: var(--bark);
+  }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a {
+    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+    text-decoration: none; color: var(--bark); opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+  .nav-links a:hover { opacity: 1; }
+
+  /* ── HERO ── */
+  #page-info {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    padding-top: 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: calc(100vh - 5rem);
+  }
+
+  .hero-left {
+    padding: 5rem 4rem 4rem 5rem;
+    display: flex; flex-direction: column; justify-content: space-between;
+    border-right: 1px solid rgba(45,31,15,0.15);
+    position: relative;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--red); margin-bottom: 2rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .hero-eyebrow::after {
+    content: ''; flex: 1; height: 1px; background: var(--red); opacity: 0.4;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--bark);
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--moss);
+    display: block;
+  }
+
+  .latin-name {
+    margin-top: 2rem;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--amber);
+    letter-spacing: 0.05em;
+  }
+
+  .hero-desc {
+    font-size: 0.8rem;
+    line-height: 1.8;
+    color: rgba(45,31,15,0.7);
+    max-width: 38ch;
+    margin-top: auto; padding-top: 3rem;
+  }
+
+  .hero-right {
+    display: grid;
+    grid-template-rows: 1fr auto;
+    background: var(--bark);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tree-illustration {
+    display: flex; align-items: center; justify-content: center;
+    padding: 3rem;
+    flex: 1;
+  }
+
+  /* Decorative SVG tree */
+  .tree-svg { width: 100%; max-width: 320px; opacity: 0.9; }
+
+  .hero-stat-bar {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid rgba(240,235,224,0.15);
+  }
+  .stat {
+    padding: 1.5rem;
+    border-right: 1px solid rgba(240,235,224,0.1);
+    text-align: center;
+  }
+  .stat:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; font-weight: 700;
+    color: var(--amber);
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.15em;
+    color: rgba(240,235,224,0.5); margin-top: 0.3rem; display: block;
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    padding: 6rem 5rem;
+    border-top: 1px solid rgba(45,31,15,0.1);
+  }
+
+  .section-tag {
+    font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--amber); margin-bottom: 3rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .section-tag::before {
+    content: ''; width: 2rem; height: 1px; background: var(--amber);
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 700; line-height: 1.1;
+    margin-bottom: 3rem;
+    color: var(--bark);
+  }
+
+  /* Fact cards */
+  .facts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1px;
+    background: rgba(45,31,15,0.1);
+    border: 1px solid rgba(45,31,15,0.1);
+    margin-top: 3rem;
+  }
+
+  .fact-card {
+    background: var(--cream);
+    padding: 2.5rem 2rem;
+    position: relative;
+    transition: background 0.3s;
+  }
+  .fact-card:hover { background: var(--pale); }
+
+  .fact-icon {
+    font-size: 2rem; margin-bottom: 1.5rem; display: block;
+  }
+  .fact-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.2rem; font-weight: 600;
+    margin-bottom: 0.8rem;
+    color: var(--bark);
+  }
+  .fact-text {
+    font-size: 0.75rem; line-height: 1.8;
+    color: rgba(45,31,15,0.65);
+  }
+  .fact-card.danger { background: rgba(166,50,34,0.06); }
+  .fact-card.danger:hover { background: rgba(166,50,34,0.1); }
+
+  /* Identification section */
+  .id-grid {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .id-cards { display: flex; flex-direction: column; gap: 0; }
+
+  .id-card {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid rgba(45,31,15,0.08);
+    align-items: flex-start;
+  }
+  .id-card:first-child { border-top: 1px solid rgba(45,31,15,0.08); }
+
+  .id-card-label {
+    font-family: 'Fraunces', serif;
+    font-size: 0.85rem; font-weight: 600;
+    color: var(--moss);
+    min-width: 90px;
+    padding-top: 0.1rem;
+    flex-shrink: 0;
+  }
+
+  .id-card-text {
+    font-size: 0.76rem; line-height: 1.75;
+    color: rgba(45,31,15,0.7);
+  }
+
+  .warning-box {
+    background: var(--bark);
+    color: var(--pale);
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .warning-box::before {
+    content: '⚠';
+    position: absolute; right: 2rem; top: 1.5rem;
+    font-size: 4rem; opacity: 0.08;
+  }
+  .warning-box h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem; font-style: italic;
+    margin-bottom: 1rem;
+    color: var(--amber);
+  }
+  .warning-box p {
+    font-size: 0.75rem; line-height: 1.8;
+    color: rgba(240,235,224,0.75);
+  }
+
+  /* CTA to map */
+  .map-cta {
+    padding: 6rem 5rem;
+    background: var(--moss);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 3rem; flex-wrap: wrap;
+  }
+  .map-cta h2 {
+    color: var(--pale);
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-bottom: 0;
+  }
+  .map-cta p {
+    color: rgba(240,235,224,0.7);
+    font-size: 0.78rem; line-height: 1.8;
+    max-width: 40ch; margin-top: 1rem;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.75rem;
+    padding: 1rem 2.5rem;
+    background: var(--amber);
+    color: var(--bark);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+    text-decoration: none;
+    border: none; cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--pale); transform: translateY(-2px); }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid rgba(240,235,224,0.4);
+    color: var(--pale);
+  }
+  .btn-outline:hover { background: rgba(240,235,224,0.1); }
+
+  /* ── PAGE 2: MAP ── */
+  #page-map {
+    min-height: 100vh;
+    padding-top: 5rem;
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+
+  .map-header {
+    padding: 3rem 5rem 2rem;
+    border-bottom: 1px solid rgba(45,31,15,0.1);
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: 2rem; flex-wrap: wrap;
+  }
+
+  .map-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    margin-bottom: 0;
+  }
+  .map-header p {
+    font-size: 0.73rem; line-height: 1.7;
+    color: rgba(45,31,15,0.6);
+    max-width: 45ch;
+  }
+  .location-count {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem; font-weight: 900;
+    color: var(--moss);
+    line-height: 1;
+  }
+  .location-count span {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: rgba(45,31,15,0.5);
+    display: block; font-weight: 400; margin-top: 0.3rem;
+  }
+
+  #map-container {
+    position: relative;
+    height: calc(100vh - 5rem - 120px);
+    min-height: 500px;
+  }
+
+  #map {
+    width: 100%; height: 100%;
+    filter: grayscale(20%) sepia(10%);
+  }
+
+  .map-legend {
+    position: absolute; bottom: 2rem; left: 2rem; z-index: 10;
+    background: rgba(250,246,237,0.95);
+    backdrop-filter: blur(8px);
+    padding: 1.2rem 1.5rem;
+    border: 1px solid rgba(45,31,15,0.15);
+  }
+  .legend-title {
+    font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--bark); opacity: 0.5; margin-bottom: 0.8rem;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-size: 0.7rem; color: rgba(45,31,15,0.7);
+  }
+  .legend-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--moss); border: 2px solid var(--bark);
+    flex-shrink: 0;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero-left > * {
+    animation: fadeUp 0.7s ease both;
+  }
+  .hero-left > *:nth-child(1) { animation-delay: 0.1s; }
+  .hero-left > *:nth-child(2) { animation-delay: 0.25s; }
+  .hero-left > *:nth-child(3) { animation-delay: 0.4s; }
+
+  /* Decorative grain overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-left { padding: 3rem 1.5rem; }
+    .hero-right { display: none; }
+    .section { padding: 4rem 1.5rem; }
+    .id-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .map-cta { padding: 4rem 1.5rem; }
+    .map-header { padding: 2rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Invasive Arten · Berlin</div>
+  <div class="nav-links">
+    <a href="#page-info">Information</a>
+    <a href="#page-map">Standorte</a>
+  </div>
+</nav>
+
+<!-- ═══════════════ PAGE 1: INFO ═══════════════ -->
+<section id="page-info">
+
+  <div class="hero-grid">
+    <div class="hero-left">
+      <div>
+        <div class="hero-eyebrow">Invasive Art · Neobiota</div>
+        <h1>Der stille<br><em>Eindringling</em></h1>
+        <div class="latin-name">Ailanthus altissima · Mill. (Swingle)</div>
+      </div>
+      <p class="hero-desc">
+        Der Götterbaum wächst schnell, verdrängt heimische Pflanzen und schädigt Gebäude. 
+        Er breitet sich in Berlin rasant aus — auf Brachflächen, an Gleisen, in Mauerritzen. 
+        Erkennen, melden, entfernen.
+      </p>
+    </div>
+
+    <div class="hero-right">
+      <div class="tree-illustration">
+        <!-- Artistic tree SVG -->
+        <svg class="tree-svg" viewBox="0 0 280 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Trunk -->
+          <rect x="126" y="260" width="28" height="130" fill="#c97b2a" opacity="0.6" rx="2"/>
+          <rect x="132" y="260" width="8" height="130" fill="#a0601a" opacity="0.4" rx="1"/>
+          <!-- Main branches -->
+          <line x1="140" y1="260" x2="80" y2="190" stroke="#c97b2a" stroke-width="8" stroke-linecap="round" opacity="0.7"/>
+          <line x1="140" y1="250" x2="200" y2="170" stroke="#c97b2a" stroke-width="8" stroke-linecap="round" opacity="0.7"/>
+          <line x1="140" y1="240" x2="140" y2="160" stroke="#c97b2a" stroke-width="10" stroke-linecap="round" opacity="0.7"/>
+          <line x1="140" y1="230" x2="60" y2="140" stroke="#c97b2a" stroke-width="6" stroke-linecap="round" opacity="0.5"/>
+          <line x1="140" y1="240" x2="220" y2="130" stroke="#c97b2a" stroke-width="6" stroke-linecap="round" opacity="0.5"/>
+          <!-- Leaf clusters -->
+          <ellipse cx="80" cy="165" rx="55" ry="42" fill="#4a5e2f" opacity="0.85"/>
+          <ellipse cx="200" cy="145" rx="55" ry="40" fill="#4a5e2f" opacity="0.85"/>
+          <ellipse cx="140" cy="120" rx="65" ry="48" fill="#5a7038" opacity="0.9"/>
+          <ellipse cx="60" cy="118" rx="42" ry="35" fill="#4a5e2f" opacity="0.75"/>
+          <ellipse cx="220" cy="108" rx="42" ry="35" fill="#4a5e2f" opacity="0.75"/>
+          <ellipse cx="140" cy="80" rx="50" ry="40" fill="#6b8c3a" opacity="0.8"/>
+          <!-- Highlight -->
+          <ellipse cx="120" cy="100" rx="30" ry="22" fill="#7a9e45" opacity="0.3"/>
+          <!-- Warning seeds/fruit clusters -->
+          <ellipse cx="90" cy="195" rx="14" ry="5" fill="#a63222" opacity="0.7" transform="rotate(-30 90 195)"/>
+          <ellipse cx="185" cy="175" rx="14" ry="5" fill="#a63222" opacity="0.7" transform="rotate(20 185 175)"/>
+          <ellipse cx="155" cy="160" rx="12" ry="4" fill="#a63222" opacity="0.6" transform="rotate(-10 155 160)"/>
+          <!-- Root spread hint -->
+          <path d="M 110 390 Q 60 370 20 380" stroke="#c97b2a" stroke-width="3" opacity="0.3" fill="none" stroke-linecap="round"/>
+          <path d="M 160 390 Q 210 370 250 385" stroke="#c97b2a" stroke-width="3" opacity="0.3" fill="none" stroke-linecap="round"/>
+          <path d="M 128 390 Q 100 380 80 395" stroke="#c97b2a" stroke-width="2" opacity="0.25" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="hero-stat-bar">
+        <div class="stat">
+          <span class="stat-num">5m</span>
+          <span class="stat-label">Wachstum / Jahr</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">325k</span>
+          <span class="stat-label">Samen / Baum</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">1761</span>
+          <span class="stat-label">In Europa seit</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FACTS -->
+  <div class="section">
+    <div class="section-tag">Warum er problematisch ist</div>
+    <h2>Eine Art, die<br>alles verändert.</h2>
+
+    <div class="facts-grid">
+      <div class="fact-card danger">
+        <span class="fact-icon">🌱</span>
+        <div class="fact-title">Aggressiver Wuchs</div>
+        <p class="fact-text">Der Götterbaum wächst bis zu 5 Meter pro Jahr — schneller als fast jede heimische Baumart. Er besiedelt Baulücken, Gleisanlagen und Mauerspalten innerhalb weniger Wochen.</p>
+      </div>
+      <div class="fact-card">
+        <span class="fact-icon">☠️</span>
+        <div class="fact-title">Allelopathisch</div>
+        <p class="fact-text">Die Pflanze gibt giftige Substanzen (Ailanthon) in den Boden ab, die das Wachstum anderer Pflanzen aktiv hemmen oder abtöten. Eine natürliche chemische Waffe.</p>
+      </div>
+      <div class="fact-card danger">
+        <span class="fact-icon">🏚️</span>
+        <div class="fact-title">Gebäudeschäden</div>
+        <p class="fact-text">Seine Wurzeln dringen in Fundamente, Kanalisation und Mauerwerk ein. Schäden an Gehwegen, Leitungen und Gebäuden kosten Städte jährlich Millionen Euro.</p>
+      </div>
+      <div class="fact-card">
+        <span class="fact-icon">🌍</span>
+        <div class="fact-title">Klimagewinner</div>
+        <p class="fact-text">Hitzesommer und milde Winter begünstigen den Götterbaum. Klimawandel beschleunigt seine Ausbreitung in Deutschland dramatisch — er gilt als Gewinner des Klimawandels.</p>
+      </div>
+      <div class="fact-card">
+        <span class="fact-icon">🤧</span>
+        <div class="fact-title">Gesundheitsrisiken</div>
+        <p class="fact-text">Der Pollen des männlichen Baumes kann Allergien auslösen. Hautkontakt mit Blättern und Rinde kann zu Dermatitis führen. Alle Teile der Pflanze gelten als schwach giftig.</p>
+      </div>
+      <div class="fact-card danger">
+        <span class="fact-icon">🐦</span>
+        <div class="fact-title">Artenverdrängung</div>
+        <p class="fact-text">Heimische Insekten und Vögel nutzen den Götterbaum kaum. Wo er dominiert, verlieren einheimische Ökosysteme ihre Artenvielfalt — Schmetterlings- und Bienenhabitate schwinden.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- IDENTIFICATION -->
+  <div class="section" style="background: var(--pale);">
+    <div class="section-tag">Erkennung</div>
+    <h2>So erkennst du<br>den Götterbaum.</h2>
+
+    <div class="id-grid">
+      <div class="id-cards">
+        <div class="id-card">
+          <div class="id-card-label">🍃 Blätter</div>
+          <div class="id-card-text">Gefiedert, 40–90 cm lang, mit 13–25 Blättchen. Jedes Blättchen hat an der Basis 1–3 charakteristische Zähne mit einer Drüse darunter — einzigartiges Merkmal.</div>
+        </div>
+        <div class="id-card">
+          <div class="id-card-label">👃 Geruch</div>
+          <div class="id-card-text">Zerriebene Blätter riechen unangenehm — ranzig, manche sagen „Erdnussbutter". Dieser Geruch ist das zuverlässigste Erkennungsmerkmal überhaupt.</div>
+        </div>
+        <div class="id-card">
+          <div class="id-card-label">🪵 Rinde</div>
+          <div class="id-card-text">Hellgrau, glatt bis leicht rissig, mit hellen Längsstreifen. Junge Triebe sind behaart und rötlich-braun, auffallend dick und kräftig.</div>
+        </div>
+        <div class="id-card">
+          <div class="id-card-label">🌰 Früchte</div>
+          <div class="id-card-text">Geflügelte Samen (Samara) in dichten roten bis braunen Büscheln, sehr auffällig von August bis Winter. Ein Baum produziert bis zu 325.000 Samen pro Jahr.</div>
+        </div>
+        <div class="id-card">
+          <div class="id-card-label">📈 Wuchs</div>
+          <div class="id-card-text">Extrem schnell, bis 5 m/Jahr. Junge Pflanzen haben dicke, trotzige Triebe. Nach dem Fällen treibt er aus Stumpf und Wurzeln massiv wieder aus — oft noch stärker.</div>
+        </div>
+        <div class="id-card">
+          <div class="id-card-label">⚠ Ähnlich</div>
+          <div class="id-card-text">Verwechslung möglich mit Eschenahorn (<em>Acer negundo</em>) oder Walnuss (<em>Juglans regia</em>). Unterschied: Zahndrüsen und unangenehmer Geruch sind beim Götterbaum einzigartig.</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="warning-box">
+          <h3>Beim Entfernen bitte beachten:</h3>
+          <p>
+            Das Fällen allein reicht nicht. Götterbäume treiben aus Wurzeln und Stümpfen massiv wieder aus — 
+            manchmal noch stärker als zuvor. Professionelle Entfernung mit Wurzelentnahme oder Behandlung 
+            des Stumpfes mit zugelassenen Mitteln ist notwendig. Nicht kompostieren — Samen und Wurzelteile 
+            können keimen. Kontakt zur Berliner Forstverwaltung oder BUND empfohlen.
+          </p>
+        </div>
+
+        <div style="margin-top: 1.5rem; padding: 2rem; border: 1px solid rgba(45,31,15,0.12);">
+          <div class="section-tag" style="margin-bottom: 1rem;">Herkunft</div>
+          <p style="font-size: 0.75rem; line-height: 1.8; color: rgba(45,31,15,0.65);">
+            Ursprünglich aus Nordchina und Taiwan, wurde <em>Ailanthus altissima</em> 1761 nach Europa eingeführt — 
+            zunächst als Zierbaum und möglicher Nahrungslieferant für Seidenraupen. Heute gilt er in ganz Europa, 
+            Nordamerika und Australien als einer der problematischsten invasiven Bäume überhaupt.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA TO MAP -->
+  <div class="map-cta">
+    <div>
+      <h2>Wo wächst er<br>in Berlin?</h2>
+      <p>Wir haben Standorte dokumentiert. Auf der Karte siehst du, wo Götterbäume in unserer Nachbarschaft gesichtet wurden.</p>
+    </div>
+    <a href="#page-map" class="btn">Zur Karte &rarr;</a>
+  </div>
+
+</section>
+
+<!-- ═══════════════ PAGE 2: MAP ═══════════════ -->
+<section id="page-map">
+
+  <div class="map-header">
+    <div>
+      <div class="section-tag" style="margin-bottom: 0.8rem;">Dokumentierte Sichtungen</div>
+      <h2>Götterbaum-<br>Standorte</h2>
+      <p>Alle markierten Punkte sind dokumentierte Sichtungen in Berlin. Klicke auf einen Marker für Details.</p>
+    </div>
+    <div style="text-align: right;">
+      <div class="location-count">54<span>Erfasste Standorte</span></div>
+    </div>
+  </div>
+
+  <div id="map-container">
+    <div id="map"></div>
+    <div class="map-legend">
+      <div class="legend-title">Legende</div>
+      <div class="legend-item">
+        <div class="legend-dot"></div>
+        Götterbaum-Sichtung
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<script>
+// Parst die locations.md im gleichen Repo
+function parseLocations(md) {
+  const locations = [];
+  const blocks = md.split('----');
+  for (const block of blocks) {
+    const latLng = block.match(/Koordinaten:\s*\[([^\]]+)\],\s*\[([^\]]+)\]/);
+    const date   = block.match(/Gespeichert am:\s*\[([^\]]+)\]/);
+    if (!latLng) continue;
+    const noteMatch = block.match(/Gespeichert am:[^\n]*\n+([^\n\-\[]+)/);
+    const note = noteMatch ? noteMatch[1].trim() : '';
+    locations.push({
+      lat:  parseFloat(latLng[1]),
+      lng:  parseFloat(latLng[2]),
+      date: date ? date[1] : '—',
+      note: note || ''
+    });
+  }
+  return locations;
+}
+
+function updateCount(n) {
+  const el = document.querySelector('.location-count');
+  if (el) el.childNodes[0].textContent = n;
+}
+
+function renderMarkers(map, locations) {
+  const icon = L.divIcon({
+    className: '',
+    html: `<div style="
+      width:14px;height:14px;border-radius:50%;
+      background:#4a5e2f;border:2.5px solid #2d1f0f;
+      box-shadow:0 2px 6px rgba(0,0,0,0.4);
+    "></div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+  locations.forEach(loc => {
+    L.marker([loc.lat, loc.lng], { icon })
+      .addTo(map)
+      .bindPopup(`
+        <div style="font-family:'DM Mono',monospace;font-size:11px;line-height:1.6;min-width:180px;">
+          <div style="font-weight:500;color:#4a5e2f;letter-spacing:0.1em;text-transform:uppercase;font-size:10px;margin-bottom:6px;">
+            Götterbaum-Sichtung
+          </div>
+          <div style="color:#2d1f0f;">📅 ${loc.date}</div>
+          <div style="color:#888;margin-top:4px;font-size:10px;">
+            ${loc.lat.toFixed(5)}, ${loc.lng.toFixed(5)}
+          </div>
+          ${loc.note ? `<div style="margin-top:6px;color:#a63222;font-weight:500;">⚠ ${loc.note}</div>` : ''}
+          <div style="margin-top:8px;">
+            <a href="https://maps.google.com/?q=${loc.lat},${loc.lng}"
+               target="_blank"
+               style="color:#4a5e2f;font-size:10px;letter-spacing:0.08em;">
+              → In Google Maps öffnen
+            </a>
+          </div>
+        </div>
+      `, { maxWidth: 240 });
+  });
+  updateCount(locations.length);
+}
+
+const map = L.map('map').setView([52.53, 13.37], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  maxZoom: 19
+}).addTo(map);
+
+// locations.md aus dem gleichen Repo laden
+fetch('Götterbaum.md')
+  .then(r => r.text())
+  .then(md => renderMarkers(map, parseLocations(md)))
+  .catch(() => {
+    document.getElementById('map').insertAdjacentHTML('afterend',
+      '<p style="text-align:center;padding:2rem;font-family:monospace;color:#a63222;">⚠ locations.md nicht gefunden — stelle sicher, dass die Datei im gleichen Ordner liegt.</p>'
+    );
+  });
+</script>
+</body>
+</html>
